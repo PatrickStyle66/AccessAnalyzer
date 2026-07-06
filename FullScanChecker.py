@@ -25,7 +25,8 @@ def getPageScore(html,site = ''):
     info = []
     driver.switch_to.window(driver.window_handles[1])
     driver.get('https://accessmonitor.acessibilidade.gov.pt/')
-    HtmlMode = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[contains(@data-rr-ui-event-key,"tab2")]')))
+    HtmlMode = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[text()="Inserir código HTML"]')))
+    actions.move_to_element(HtmlMode).perform()
     HtmlMode.click()
     search = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "html")))
     search.clear()
@@ -38,6 +39,7 @@ def getPageScore(html,site = ''):
     driver.switch_to.window(driver.window_handles[1])
     search.send_keys(Keys.CONTROL, 'v')
     sendButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//button[contains(@id,"btn-html")]')))
+    actions.move_to_element(sendButton).perform()
     sendButton.click()
     try:
         score = WebDriverWait(driver, 60).until(
@@ -45,7 +47,9 @@ def getPageScore(html,site = ''):
         scoreImage = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class,"d-flex flex-row mt-5 mb-5 justify-content-between container_uri_chart")]')))
         actions.move_to_element(scoreImage).perform()
         scoreImage = scoreImage.screenshot_as_png
-        score = str(score.text).split('\n')[1]
+        print(str(score.text))
+        score = str(score.text).split('\n')[0]
+
         results = WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.XPATH, '//table[contains(@class,"table table_primary ")]//tbody//tr')))
         infoElements = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, '//div[contains(@class,"size_container d-flex flex-column gap-4")]//div[contains(@class,"d-flex flex-column")]')))
@@ -57,7 +61,7 @@ def getPageScore(html,site = ''):
         title = title.screenshot_as_png
         tableList.append(title)
         tableElements = WebDriverWait(driver, 10).until(
-            EC.presence_of_all_elements_located((By.XPATH, '//table[contains(@class,"table table-bordereds table-alternative ")]//tbody//tr')))
+            EC.presence_of_all_elements_located((By.XPATH, '//table[contains(@class,"table table_primary ama ")]//tbody//tr')))
         for element in tableElements:
             actions.move_to_element(element).perform()
             tableList.append(element.screenshot_as_png)
@@ -106,7 +110,13 @@ def getLinkFromElement(item):
         pass
 
 def queryString(site):
-    return f'//a[(contains(@href, "{site}") or starts-with(@href, "/") or starts-with(@href, "#")) and not(contains(@href,"jpg") or contains(@href,"youtube") or contains(@href,"youtu.be") or contains(@href,"instagram") or contains(@href,"facebook") or contains(@href,"linkedin") or contains(@href,"tiktok") or contains(@href,"mailto") or contains(@href,"jpeg") or contains(@href,"png") or contains(@href,"mp3") or contains(@href,"twitter") or contains(@href,"x.com") or contains(@href,"google") or contains(@href,"wikipedia") or contains(@href,"pdf") or contains(@href,"JPEG") or contains(@href,"PNG")or contains(@href,"JPG") or contains(@href,"PDF"))]'
+    return (f'//a[(contains(@href, "{site}") or starts-with(@href, "/") or starts-with(@href, "#")) and '
+            f'not(contains(@href,"jpg") or contains(@href,"youtube") or contains(@href,"youtu.be") or '
+            f'contains(@href,"instagram") or contains(@href,"facebook") or contains(@href,"linkedin") or '
+            f'contains(@href,"tiktok") or contains(@href,"mailto") or contains(@href,"jpeg") or contains(@href,"png") '
+            f'or contains(@href,"mp3") or contains(@href,"twitter") or contains(@href,"x.com") or contains(@href,"google") '
+            f'or contains(@href,"wikipedia") or contains(@href,"pdf") or contains(@href,"JPEG") or contains(@href,"PNG")'
+            f'or contains(@href,"JPG") or contains(@href,"PDF"))]')
 
 def searchThroughWebsite(linkList,site):
     global placeholder,pageCount,AnalyzedSite, driver
@@ -223,7 +233,7 @@ def imageSlider():
             for element in infoList[image]:
                 st.image(element)
         with cent_co:
-            st.image(scoreList[image],use_column_width=False)
+            st.image(scoreList[image],width='stretch')
         for element in overviewList[image]:
             st.image(element)
         for element in imagesList[image]:
